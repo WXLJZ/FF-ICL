@@ -10,6 +10,7 @@
 - [Code Structure](#anchor-code-structure)
 - [Environment and Requirements](#anchor-environment-and-requirements)
 - [Running](#anchor-running)
+- [Data Description](#anchor-data-description)
 
 ---
 
@@ -23,7 +24,7 @@ Metaphors, as a common linguistic expression, help people intuitively understand
 <a id="anchor-code-structure"></a>
 ## 📂 Code Structure
 ```angular2html
-├── 📁 data——original data
+├── 📁 data——The reconstruct data from CSR and CMRE.
 └── 📁 src——the code of method
     ├── 📁 gnnencoder——GAT encoder
     └── 📁 Icl——In-context learning
@@ -84,5 +85,35 @@ CUDA_VISIBLE_DEVICES=0 bash run.sh
 --model_name_or_path # The location of the LLM.
 ```
 
-
+## 📄 Data Description
+>The CSR dataset is sourced from Liu et al.
+```json
+@inproceedings{liu-etal-2018-neural,
+    title = "Neural Multitask Learning for Simile Recognition",
+    author = "Liu, Lizhen  and Hu, Xiao  and Song, Wei and Fu, Ruiji and Liu, Ting  and Hu, Guoping",
+    booktitle = "Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing",
+    month = "oct - nov",
+    year = "2018",
+    address = "Brussels, Belgium",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/D18-1183",
+    doi = "10.18653/v1/D18-1183",
+    pages = "1543--1553"
+}
+```
+>The CMRE dataset is sourced from Chen et al.
+```json
+@inproceedings{chen-etal-2023-chinese,
+    title = "{C}hinese Metaphorical Relation Extraction: Dataset and Models",
+    author = "Chen, Guihua  and Wu, Tiantian and Cheng, MiaoMiao and Han, Xu and Gong, Jiefu  and Wang, Shijin and Song, Wei",
+    booktitle = "Findings of the Association for Computational Linguistics: EMNLP 2023",
+    month = "dec",
+    year = "2023",
+    address = "Singapore",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.findings-emnlp.609",
+    doi = "10.18653/v1/2023.findings-emnlp.609",
+    pages = "9085--9095"
+}
+```
 
