@@ -87,7 +87,7 @@ CUDA_VISIBLE_DEVICES=0 bash run.sh
 
 ## 📄 Data Description
 >The CSR dataset is sourced from Liu et al.
-```json
+```bibtex
 @inproceedings{liu-etal-2018-neural,
     title = "Neural Multitask Learning for Simile Recognition",
     author = "Liu, Lizhen  and Hu, Xiao  and Song, Wei and Fu, Ruiji and Liu, Ting  and Hu, Guoping",
@@ -102,7 +102,7 @@ CUDA_VISIBLE_DEVICES=0 bash run.sh
 }
 ```
 >The CMRE dataset is sourced from Chen et al.
-```json
+```bibtex
 @inproceedings{chen-etal-2023-chinese,
     title = "{C}hinese Metaphorical Relation Extraction: Dataset and Models",
     author = "Chen, Guihua  and Wu, Tiantian and Cheng, MiaoMiao and Han, Xu and Gong, Jiefu  and Wang, Shijin and Song, Wei",
