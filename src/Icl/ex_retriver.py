@@ -283,18 +283,3 @@ def mean_pooling(model_output, attention_mask):
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
     return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
-
-if __name__ == '__main__':
-    ex_file_path = "/home/xyou/workspace/simile_component_extraction/data/CSU/train.json"
-    paths = {
-        'gnn_path': '/home/xyou/workspace/simile_component_extraction/checkpoints/gnn/best_gnn_model.pt',
-        'bert_path': '/home/xyou/workspace/models/bert-base-chinese'
-    }
-
-    retriever = Ex_Retriver(ex_file_path,paths=paths, encode_method='gnn')
-
-    res = retriever.search_examples("我们顿觉自己很平凡，平凡的像一颗远星的微光，一叶小草，一滴晨露，为此，我们惆怅，我们感叹。", selected_k=3)
-
-    examples_str = ""
-    for id,example in enumerate(res):
-        examples_str += f'示例 {id + 1}:\n输入："{example[0]}"\n输出："{example[1]}"\n'

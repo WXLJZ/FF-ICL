@@ -116,26 +116,3 @@ class GNNDataset(Dataset):
 
         return node_features, edge_features
 
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Train GNN model')
-    parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
-    parser.add_argument('--epoch_num', type=int, default=10, help='Number of epochs')
-    parser.add_argument('--max_len', type=int, default=128, help='Maximum sequence length')
-    # note 由于 shuffle，这里的 batch_size 必须足够大，才能确保表征模型学到泛化性
-    parser.add_argument('--batch_size', type=int, default=128, help='Batch size')
-    parser.add_argument('--save_path', type=str, default='../../checkpoints/gnn', help='Path to save the model')
-    parser.add_argument('--lig_top_k', type=float, default=0.2, help='Top k percent of linguistic similarity')
-    parser.add_argument('--struct_top_k', type=float, default=0.2, help='Top k percent of structural similarity')
-    parser.add_argument('--data_path', type=str, default='/home/xyou/workspace/simile_component_extraction/data/CSU/train.json', help='The location of the dataset')
-    args = parser.parse_args()
-
-    train_dataset = GNNDataset(args)
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=False, collate_fn=train_dataset.collate_fn)
-
-    for batch in tqdm(train_loader):
-        node_features, edge_features = batch
-        # [B,B,2]
-        print(node_features.shape)
-        print(edge_features.shape)
-        # break

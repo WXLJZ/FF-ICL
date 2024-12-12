@@ -95,21 +95,3 @@ def contrastive_loss(dims_representations, cl_adj, tau=0.1):
     return total_loss
 
 
-if __name__ == "__main__":
-    nhead = 2
-    token_dim = 768
-    hidden_dim = 128
-    output_dim = 512
-
-    model = MultiHeadGAT(nhead, token_dim, hidden_dim, output_dim)
-    bs = 32
-    max_len = 256
-    token_embedding_sample = torch.rand(bs, max_len, token_dim)
-    edge_embedding_sample = torch.randint(0, 2, (bs, bs, 2)).float()
-
-    dims_representations, avg_representation = model(token_embedding_sample)
-    print(avg_representation.shape)
-    for dim, reps_dim in enumerate(dims_representations):
-        print(reps_dim.shape)
-    loss = contrastive_loss(dims_representations, edge_embedding_sample)
-    print(loss)

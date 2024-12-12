@@ -204,31 +204,3 @@ def calculate_similarity(matrix, center_tokens):
 
     return similarity_matrix
 
-
-if __name__ == "__main__":
-    # 示例
-    inputs = [
-        "我可以不同意你的观点，但我誓死捍卫你说话的权利。",
-        "冻结犯罪嫌疑人的存款、汇款",
-        "情趣低俗会腐朽一个人的信念",
-        "神到底是创造者还是破坏者？",
-        "他的眼睛里，闪烁着理想的光芒。",
-        "沟通是打开他心门的一把钥匙",
-        "笔端开出第一朵爱情诗的蓓蕾。",
-        "我不想被卷进这件事"
-    ]
-    outputs = [
-        [['捍卫', '你说话的权利']],
-        [['冻结', '犯罪嫌疑人的存款、汇款']],
-        [['腐朽', '情趣低俗'], ['腐朽', '一个人的信念']],
-        [['创造者', '神'], ['破坏者', '神']],
-        [['闪烁', '理想的光芒'], ['光芒', '理想']],
-        [['钥匙', '沟通'], ['门', '心']],
-        [['开出', '笔端'], ['蓓蕾', '爱情诗']],
-        [['卷进', '事']]
-    ]
-
-    analyzer = SentenceAnalyzer(top_k=0.5)
-
-    linguistic_feature = analyzer.linguistic_feature(inputs, outputs)
-    print(linguistic_feature)
