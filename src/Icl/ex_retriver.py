@@ -182,7 +182,7 @@ class Ex_Retriver():
             feture_types = ['lig', 'struct', 'avg']
             for i in range(3):
                 distances, indices = self.index[i].search(query_embeddings[i], self.index[i].ntotal)
-                # 距离越小的放到前面（这样最相似的例子离输入最近）
+                # 按照距离远近升序排序，最相似的在列表最前面
                 sorted_results = sorted(zip(indices[0], distances[0]), key=lambda x: x[1], reverse=False)
                 # 每个维度取对应数量，且去重
                 for idx, dist in sorted_results:
@@ -211,11 +211,14 @@ class Ex_Retriver():
         elif self.encode_method == 'KATE' or self.encode_method == 'sbert':
             query_embedding = self.encode_sentences([query])
             distances, indices = self.index.search(query_embedding, self.index.ntotal)
-
-            # 距离越大的放到前面（这样最相似的例子离输入最近）
-            sorted_results = sorted(zip(indices[0], distances[0]), key=lambda x: x[1], reverse=True)
-            # Getting the top k results
-            top_results = sorted_results[:selected_k]
+            if self.encode_method == 'KATE':
+                sorted_results = sorted(zip(indices[0], distances[0]), key=lambda x: x[1], reverse=False)
+            else:
+                sorted_results = sorted(zip(indices[0], distances[0]), key=lambda x: x[1], reverse=True)
+            # Getting the top k results, excluding the input example
+            top_results = sorted_results[1: 1 + selected_k]
+            # Sort the selected examples from greatest to smallest distance, so that the most similar examples are closest to the input.
+            top_results.reverse()
             res = [(self.sents[idx], self.data_dict[self.sents[idx]]) for idx, dist in top_results]
             return res
         elif self.encode_method == 'kmeans':
