@@ -136,7 +136,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset_name', type=str, default='CMRE', help='The name of the dataset')
     args = parser.parse_args()
     if not args.save_path:
-        args.save_path = f"./checkpoints/gnn_checkpoints/{args.dataset_name}/{args.lig_top_k}_{args.struct_top_k}/"
+        args.save_path = f"./checkpoints/gnn_checkpoints/{args.dataset_name}/"
     args.data_path = f"./data/{args.dataset_name}/train.json"
     print(f"=================================================================================")
     print(f"Currently {args.dataset_name} dataset is running ...")

@@ -76,6 +76,65 @@ def get_csr_metric(y_trues, y_preds, report=False):
 
     return precision, recall, f1
 
+def get_lcc_metric(y_trues, y_preds, report=True):
+    true_pair, pred_pair, pair_hit = 0, 0, 0
+    true_tenor, pred_tenor, tenor_hit = 0, 0, 0
+    true_vehicle, pred_vehicle, vehicle_hit = 0, 0, 0
+    for y_true, y_pred in zip(y_trues, y_preds):
+        # 以防生成的结果长度不足，或者长度过大（0,1 or >2）
+        if len(y_pred) == 0:
+            y_pred = [[], []]
+        elif len(y_pred) == 1:
+            y_pred.append([])
+        elif len(y_pred) > 2:
+            y_pred = y_pred[:2]
+        # print(f"y_true: {y_true}, y_pred: {y_pred}")
+        tenor_true_list, vehicle_true_list = [item for item in y_true[0] if item], [item for item in y_true[1] if item]
+        tenor_pred_list, vehicle_pred_list = [item for item in y_pred[0] if item], [item for item in y_pred[1] if item]
+        # print(f"tenor_true_list: {tenor_true_list}, vehicle_true_list: {vehicle_true_list}")
+        # print(f"tenor_pred_list: {tenor_pred_list}, vehicle_pred_list: {vehicle_pred_list}")
+        # 计算本体指标
+        true_tenor += len(tenor_true_list)
+        pred_tenor += len(tenor_pred_list)
+        for tenor_entry in tenor_pred_list:
+            if tenor_entry in tenor_true_list and tenor_entry:
+                tenor_hit += 1
+        # 计算喻体指标
+        true_vehicle += len(vehicle_true_list)
+        pred_vehicle += len(vehicle_pred_list)
+        for vehicle_entry in vehicle_pred_list:
+            if vehicle_entry in vehicle_true_list and vehicle_entry:
+                vehicle_hit += 1
+        # 计算pair指标
+        true_pair += len(tenor_true_list)
+        pred_pair += len(tenor_pred_list)
+        for t, v in zip(tenor_pred_list, vehicle_pred_list):
+            if t in tenor_true_list and v in vehicle_true_list:
+                pair_hit += 1
+    # pair指标
+    precision_pair = 0 if pred_pair == 0 else pair_hit / pred_pair
+    recall_pair = 0 if true_pair == 0 else pair_hit / true_pair
+    f1_pair = 0 if precision_pair + recall_pair == 0 else 2 * precision_pair * recall_pair / (
+                precision_pair + recall_pair)
+    # 本体指标
+    precision_tenor = 0 if pred_tenor == 0 else tenor_hit / pred_tenor
+    recall_tenor = 0 if true_tenor == 0 else tenor_hit / true_tenor
+    f1_tenor = 0 if precision_tenor + recall_tenor == 0 else 2 * precision_tenor * recall_tenor / (
+                precision_tenor + recall_tenor)
+    # 喻体指标
+    precision_vehicle = 0 if pred_vehicle == 0 else vehicle_hit / pred_vehicle
+    recall_vehicle = 0 if true_vehicle == 0 else vehicle_hit / true_vehicle
+    f1_vehicle = 0 if precision_vehicle + recall_vehicle == 0 else 2 * precision_vehicle * recall_vehicle / (
+                precision_vehicle + recall_vehicle)
+    if report:
+        print('pair precision :%6.2f%% ; pair recall :%6.2f%% ; pair f1 :%6.2f%%' % (
+        100. * precision_pair, 100. * recall_pair, 100. * f1_pair))
+        print('tenor precision :%6.2f%% ; tenor recall :%6.2f%% ; tenor f1 :%6.2f%%' % (
+        100. * precision_tenor, 100. * recall_tenor, 100. * f1_tenor))
+        print('vehicle precision :%6.2f%% ; vehicle recall :%6.2f%% ; vehicle f1 :%6.2f%%' % (
+        100. * precision_vehicle, 100. * recall_vehicle, 100. * f1_vehicle))
+    return precision_pair, recall_pair, f1_pair
+
 def get_cmre_metric(y_trues, y_preds, report=False):
     true_num, pred_num, right_num = 0, 0, 0
     for y_true, y_pred in zip(y_trues, y_preds):
@@ -114,10 +173,10 @@ def evaluate(test_data, model_name_or_path, checkpoint_dir, template, temperatur
         message = [
             {"role": "user", "content": instruction}
         ]
-        print(f"instruction: {instruction}")
+        # print(f"instruction: {instruction}")
         pred = model.generate(message)[0].response_text
-        print(f"predict: {pred}")
-        print("====="*20)
+        # print(f"predict: {pred}")
+        # print("====="*20)
         true = data['output']
         
         try:
@@ -166,6 +225,8 @@ def evaluate(test_data, model_name_or_path, checkpoint_dir, template, temperatur
         precision, recall, f1 = get_cmre_metric(y_trues, y_preds, report=False)
     elif dataset_name == 'CSR':
         precision, recall, f1 = get_csr_metric(y_trues, y_preds, report=False)
+    elif dataset_name == 'LCC':
+        precision, recall, f1 = get_lcc_metric(y_trues, y_preds, report=True)
     else:
         raise ValueError(f"Unknown dataset_name: {dataset_name}")
 

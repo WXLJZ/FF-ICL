@@ -77,6 +77,20 @@ def get_cmre_struct_features(inputs, tenor_words_list, vehicle_words_list, span_
 
     return vectors
 
+
+def get_lcc_struct_features(inputs, tenor_words_list, vehicle_words_list):
+    vector = []
+    for i, sentence in enumerate(inputs):
+        tenor_vehicle_distance = sentence.find(tenor_words_list[i][0]) - sentence.find(vehicle_words_list[i][0])
+        tenor_length = len(tenor_words_list[i][0].split())
+        vehicle_length = len(vehicle_words_list[i][0].split())
+        sent_length = len(list(sentence))
+
+        vector.append(
+            [tenor_vehicle_distance, tenor_length, vehicle_length, sent_length])
+
+    return vector
+
 def euclidean_distance(v1, v2):
     """计算两个向量之间的欧几里得距离"""
     return np.linalg.norm(np.array(v1) - np.array(v2))
@@ -107,6 +121,10 @@ def compute_structural_similarity(inputs, outputs, span_types, dataset_name, top
         tensor_words = [[o for o in os][0] for os in outputs]
         vehicle_words = [[o for o in os][1] for os in outputs]
         structural_vector = get_csr_struct_features(inputs, tensor_words, vehicle_words)
+    elif dataset_name == 'LCC':
+        tenor_words = [[o for o in os][0] for os in outputs]
+        vehicle_words = [[o for o in os][1] for os in outputs]
+        structural_vector = get_lcc_struct_features(inputs, tenor_words, vehicle_words)
     else:
         raise ValueError('The dataset name must be CMRE or CSR')
 
@@ -126,4 +144,61 @@ def compute_structural_similarity(inputs, outputs, span_types, dataset_name, top
 
     return similarity_matrix
 
+
+if __name__ == "__main__":
+    # 示例
+
+    inputs = [
+        "我可以不同意你的观点，但我誓死捍卫你说话的权利。",
+        "冻结犯罪嫌疑人的存款、汇款",
+        "情趣低俗会腐朽一个人的信念",
+        "神到底是创造者还是破坏者？",
+        "他的眼睛里，闪烁着理想的光芒。",
+        "沟通是打开他心门的一把钥匙",
+        "笔端开出第一朵爱情诗的蓓蕾。",
+        "我不想被卷进这件事",
+        "知识是人类进步的阶梯"
+    ]
+    outputs = [
+        [['捍卫', '你说话的权利']],
+        [['冻结', '犯罪嫌疑人的存款、汇款']],
+        [['腐朽', '情趣低俗'], ['腐朽', '一个人的信念']],
+        [['创造者', '神'], ['破坏者', '神']],
+        [['闪烁', '理想的光芒'], ['光芒', '理想']],
+        [['钥匙', '沟通'], ['门', '心']],
+        [['开出', '笔端'], ['蓓蕾', '爱情诗']],
+        [['卷进', '事']],
+        [['人类进步的阶梯', '知识'], ['人类进步', '阶梯']]
+    ]
+    span_types = [
+        [['捍卫', '喻体动作'], ['你说话的权利', '本体']],
+        [['冻结', '喻体动作'], ['犯罪嫌疑人的存款、汇款', '本体']],
+        [['腐朽', '喻体动作'], ['情趣低俗', '本体'], ['一个人的信念', '本体']],
+        [['创造者', '喻体'], ['神', '本体'], ['破坏者', '喻体']],
+        [['闪烁', '喻体动作'], ['理想的光芒', '本体'], ['光芒', '喻体'], ['理想', '本体']],
+        [['钥匙', '喻体'], ['沟通', '本体'], ['门', '喻体部件'], ['心', '本体']],
+        [['开出', '喻体动作'], ['笔端', '本体'], ['蓓蕾', '喻体部件'], ['爱情诗', '本体']],
+        [['卷进', '喻体动作'], ['事', '本体']],
+        [['人类进步的阶梯', '喻体'], ['知识', '本体'], ['人类进步', '本体'], ['阶梯', '喻体']]
+    ]
+
+    # inputs = [
+    #     "Welcome to the very slippery slope (for some of us it's a cliff!!) of gun ownership !",
+    #     "In the U.S., poverty is fattening .",
+    #     "It is upon the rock of the Second Amendment where the “privilege” argument in reference to “concealed carry of a firearm”, founders and sinks.",
+    #     "The Black population did not heat up the Elections with a call for \"get the rascals out\".",
+    #     "Government declined by 900 payroll jobs and the private sector added 4,100.",
+    #     "\"Good governance\" includes the state, private sector and civil society as all three sectors are critical for deepening democracy , realizing rights and eradicating poverty."
+    # ]
+    # outputs = [
+    #     [['gun ownership'], ['slippery slope']],
+    #     [['poverty'], ['fattening']],
+    #     [['Second Amendment'], ['rock']],
+    #     [['Elections'], ['heat up']],
+    #     [['Government'], ['declined']],
+    #     [['democracy'], ['deepening']]
+    # ]
+
+    # print(compute_structural_similarity(inputs, outputs, span_types, top_k=0.3))
+    print(compute_structural_similarity(inputs, outputs, span_types=None, dataset_name="LCC", top_k=0.3))
 

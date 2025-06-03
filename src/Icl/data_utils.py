@@ -4,9 +4,11 @@ import random
 import sys
 import os
 
-from Icl.templates import cmre_icl_template, csr_icl_template, cmre_template, csr_template, fixed_examples_csr, fixed_examples_cmre
-from Icl.ex_retriver import Ex_Retriver
+from Icl.templates import *
 from tqdm import tqdm
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def construct_instruct(json_path, save_path, retriever=None, ICL=True, selected_k=3, dataset_name='CMRE', verbose=False, method='gnn'):
     '''
@@ -21,16 +23,26 @@ def construct_instruct(json_path, save_path, retriever=None, ICL=True, selected_
 
                 examples_str = ""
                 if method == 'gnn':
-                    for id, example in enumerate(examples):
-                        examples_str += f'示例 {id+1}:\n输入："{example[0]}"\n预测输出："{example[1][1]}"\n正确输出："{example[1][0]}"\n{example[1][2]}\n'
+                    if dataset_name == 'LCC':
+                        for id, example in enumerate(examples):
+                            examples_str += f'Example {id+1}:\nInput: "{example[0]}"\nPredicted Output: "{example[1][1]}"\nCorrect Output: "{example[1][0]}"\n{example[1][2]}\n'
+                    else:
+                        for id, example in enumerate(examples):
+                            examples_str += f'示例 {id+1}:\n输入："{example[0]}"\n预测输出："{example[1][1]}"\n正确输出："{example[1][0]}"\n{example[1][2]}\n'
                 else:
-                    for id, example in enumerate(examples):
-                        examples_str += f'示例 {id+1}:\n输入："{example[0]}"\n输出："{example[1]}"\n'
+                    if dataset_name == 'LCC':
+                        for id, example in enumerate(examples):
+                            examples_str += f'Example {id+1}:\nInput: "{example[0]}"\nOutput: "{example[1]}"\n'
+                    else:
+                        for id, example in enumerate(examples):
+                            examples_str += f'示例 {id+1}:\n输入："{example[0]}"\n输出："{example[1]}"\n'
 
                 if dataset_name == 'CMRE':
                     prompt = random.choice(cmre_icl_template).format(example=examples_str, input=d['input'])
                 elif dataset_name == 'CSR':
                     prompt = random.choice(csr_icl_template).format(example=examples_str, input=d['input'])
+                elif dataset_name == 'LCC':
+                    prompt = random.choice(lcc_icl_template).format(example=examples_str, input=d['input'])
                 else:
                     raise ValueError("Dataset name not supported")
             else:
@@ -38,6 +50,8 @@ def construct_instruct(json_path, save_path, retriever=None, ICL=True, selected_
                     prompt = random.choice(cmre_template).format(input=d['input'])
                 elif dataset_name == 'CSR':
                     prompt = random.choice(csr_template).format(input=d['input'])
+                elif dataset_name == 'LCC':
+                    prompt = random.choice(lcc_template).format(input=d['input'])
                 else:
                     raise ValueError("Dataset name not supported")
 
@@ -62,6 +76,9 @@ def construct_fixed_instruct(json_path, save_path, dataset_name):
             elif dataset_name == 'CSR':
                 examples_str = fixed_examples_csr
                 prompt = random.choice(csr_icl_template).format(example=examples_str, input=d['input'])
+            elif dataset_name == 'LCC':
+                examples_str = fixed_examples_lcc
+                prompt = random.choice(lcc_icl_template).format(example=examples_str, input=d['input'])
             else:
                 raise ValueError("Dataset name not supported")
 
@@ -73,6 +90,13 @@ def construct_fixed_instruct(json_path, save_path, dataset_name):
         json.dump(data, fp, indent=4, ensure_ascii=False)
 
 def train_data_process(ICL, prefix, inst_prefix, paths=None, dataset_name='CMRE', method='random', selected_k=3):
+    if dataset_name != 'LCC':
+        from Icl.ex_retriver import Ex_Retriver
+        logger.info(f"Using Ex_Retriver for dataset: {dataset_name}")
+    else:
+        logger.info(f"Using Ex_Retriver_EN for dataset: {dataset_name}")
+        from Icl.ex_retriver_en import Ex_Retriver
+
     if not os.path.exists(prefix):
         os.makedirs(prefix)
 
@@ -125,6 +149,13 @@ def train_data_process(ICL, prefix, inst_prefix, paths=None, dataset_name='CMRE'
     torch.cuda.empty_cache()
 
 def test_data_process(ICL, prefix, inst_prefix, paths=None, dataset_name='CMRE', method='random', selected_k=3):
+    if dataset_name != 'LCC':
+        from Icl.ex_retriver import Ex_Retriver
+        logger.info(f"Using Ex_Retriver for dataset: {dataset_name}")
+    else:
+        from Icl.ex_retriver_en import Ex_Retriver
+        logger.info(f"Using Ex_Retriver_EN for dataset: {dataset_name}")
+
     if not os.path.exists(prefix):
         os.makedirs(prefix)
 

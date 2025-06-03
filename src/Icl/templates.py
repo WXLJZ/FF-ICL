@@ -16,6 +16,12 @@ csr_icl_template = ['''接下来你需要完成隐喻成分抽取任务。任务
 {example}
 请确保你的输出格式与示例保持一致！准备好了吗？让我们在以下句子中应用起来吧！\n"{input}"\n你的正确输出：\n''']
 
+lcc_icl_template = ['''Please identify and extract metaphorical components from metaphorical sentences. These components include: Tenor – the actual object or concept being described; Vehicle – the object or concept used to describe the tenor; Vehicle Action – the part of the metaphor that conveys an action or behavior; Vehicle Attribute – the part of the metaphor that conveys a characteristic or quality. There are three types of metaphorical mappings:
+[[Tenor], [Vehicle]], [[Tenor], [Vehicle Action]], [[Tenor], [Vehicle Attribute]]. Below are some examples for reference:
+
+{example}
+Please ensure that your output strictly follows the same format as shown in the examples. Now, given the metaphorical sentence: "{input}" \nWhat is your correct output?\n''']
+
 cmre_template = [
 '''接下来你需要完成隐喻成分抽取任务。任务定义为，抽取给定隐喻句中的本体（比喻中原始的、实际的对象或概念）、喻体（比喻中描述本体的对象或概念）、喻体动作（比喻中描述行为或动作的部分）、喻体属性（比喻中描述特征或属性的部分）、喻体部件（比喻中表示整体的一部分的对象或概念）。句中可能存在多组比喻，请抽取所有可能的比喻对。比喻对存在以下四种情况：
 [本体, 喻体]，[本体, 喻体动作]，[本体, 喻体属性]，[本体, 喻体部件]
@@ -27,6 +33,10 @@ csr_template = ['''接下来你需要完成隐喻成分抽取任务。任务目�
 2. 抽取给定隐喻句的喻体。喻体是基于本体延伸出的概念或事物，一般为名词。
 3. 确保本体和喻体的精简性。需保证本体和喻体的共同属性，而不是简单的去除所有的修饰词。
 准备好了吗？让我们在以下句子中应用起来吧！\n"{input}"\n你的正确输出：\n''']
+
+lcc_template = ['''Please identify and extract metaphorical components from metaphorical sentences. These components include: Tenor – the actual object or concept being described; Vehicle – the object or concept used to describe the tenor; Vehicle Action – the part of the metaphor that conveys an action or behavior; Vehicle Attribute – the part of the metaphor that conveys a characteristic or quality. There are three types of metaphorical mappings:
+[[Tenor], [Vehicle]], [[Tenor], [Vehicle Action]], [[Tenor], [Vehicle Attribute]]. 
+Now, given the metaphorical sentence: "{input}" \nWhat is your correct output?\n''']
 
 csr_ficl_template = '''请你识别并抽取隐喻句中的本体（被比喻的事物）和喻体（基于本体延伸出的概念或事物）。以下是一些供你参考的示例：
 示例1：
@@ -53,6 +63,22 @@ cmre_ficl_template = '''请你识别并抽取隐喻句中隐喻成分（本体-�
 输入："银行首席投资策略师认为，牛市虽然已老，但还没有致命的创伤。"
 输出："[牛市, 老], [牛市, 致命的创伤]"
 请保证输出与示例的输出格式一致！现在，给定隐喻句输入："{input}"\n你的输出是？\n
+'''
+
+lcc_ficl_template = '''Please identify and extract metaphorical components from metaphorical sentences. These components include: Tenor – the actual object or concept being described; Vehicle – the object or concept used to describe the tenor; Vehicle Action – the part of the metaphor that conveys an action or behavior; Vehicle Attribute – the part of the metaphor that conveys a characteristic or quality. There are three types of metaphorical mappings:
+[Tenor, Vehicle], [Tenor, Vehicle Action], [Tenor, Vehicle Attribute]. Below are some examples for reference:
+Example 1:
+Input: Then provide drive by comments about "stooges" and " gun cult ."
+Output: [gun, cult]
+Example 2:
+Input: The stock market is a roller coaster.
+Output: [stock market, roller coaster]
+Example 3:
+Input: Government declined by 900 payroll jobs and the private sector added 4,100.
+Output: [Government, declined]
+Example 4: I think the last time we strayed was when one of the guys went on a income tax rant .
+Output: [income tax, rant]
+Please ensure that your output strictly follows the same format as shown in the examples. Now, given the metaphorical sentence: "{input}" \nWhat is your output?\n
 '''
 
 csr_no_sft_template = '''请你识别并抽取隐喻句中的本体（被比喻的事物）和喻体（基于本体延伸出的概念或事物）。以下是供你参考的示例：
@@ -94,4 +120,17 @@ fixed_examples_cmre = '''示例1：
 示例4：
 输入："她都快被暖化了"
 输出："[她, 暖化]"
+'''
+
+fixed_examples_lcc = '''Example 1:
+Input: Then provide drive by comments about "stooges" and " gun cult ."
+Output: [gun], [cult]
+Example 2:
+Input: The stock market is a roller coaster.
+Output: [stock market], [roller coaster]
+Example 3:
+Input: Government declined by 900 payroll jobs and the private sector added 4,100.
+Output: [Government], [declined]
+Example 4: I think the last time we strayed was when one of the guys went on a income tax rant .
+Output: [income tax], [rant]
 '''

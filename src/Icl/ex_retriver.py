@@ -9,10 +9,14 @@ import numpy as np
 from bert_score import score
 from rank_bm25 import BM25Okapi
 from sklearn.cluster import KMeans
+from utils.visualization import tsne_visualization
+from utils.logger import get_logger
 from tqdm import tqdm
 import sys
 sys.path.append("..")
 from gnnencoder.encoder import SentenceEncoder
+
+logger = get_logger(__name__)
 
 class Ex_Retriver():
     def __init__(self, ex_file, paths=None, encode_method='KATE'):
@@ -61,6 +65,13 @@ class Ex_Retriver():
             bert_model_path = paths['bert_path']
             self.gnn_encoder = SentenceEncoder(gnn_model_path, bert_model_path)
             self.init_embeddings(self.sents)
+            logger.info("Embedding T-SNE visualization...")
+            tsne_visualization(self.gnn_encoder.tsne_data["bert_embeddings"],
+                               self.gnn_encoder.tsne_data["gnn_embeddings_avg"],
+                               self.gnn_encoder.tsne_data["gnn_embeddings_d1"],
+                               self.gnn_encoder.tsne_data["gnn_embeddings_d2"],
+                               labels=None,
+                               save_path="./results")
         elif encode_method == 'bm25':
             print("Initializing BM25...")
             self.tokenized_sents = [list(jieba.cut(sent, cut_all=False)) for sent in self.sents]
@@ -163,7 +174,7 @@ class Ex_Retriver():
         else:
             raise NotImplementedError
 
-    def search_examples(self, query, selected_k, verbose=False):
+    def search_examples(self, query, selected_k, verbose=True):
         if verbose:
             print(f"\nSearching for: {query}")
 
@@ -182,7 +193,7 @@ class Ex_Retriver():
             feture_types = ['lig', 'struct', 'avg']
             for i in range(3):
                 distances, indices = self.index[i].search(query_embeddings[i], self.index[i].ntotal)
-                # 按照距离远近升序排序，最相似的在列表最前面
+                # 距离越小的放到前面（这样最相似的例子离输入最近）
                 sorted_results = sorted(zip(indices[0], distances[0]), key=lambda x: x[1], reverse=False)
                 # 每个维度取对应数量，且去重
                 for idx, dist in sorted_results:
@@ -283,3 +294,18 @@ def mean_pooling(model_output, attention_mask):
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
     return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
+
+if __name__ == '__main__':
+    ex_file_path = "/home/xyou/workspace/simile_component_extraction/data/CSU/train.json"
+    paths = {
+        'gnn_path': '/home/xyou/workspace/simile_component_extraction/checkpoints/gnn/best_gnn_model.pt',
+        'bert_path': '/home/xyou/workspace/models/bert-base-chinese'
+    }
+
+    retriever = Ex_Retriver(ex_file_path,paths=paths, encode_method='gnn')
+
+    res = retriever.search_examples("我们顿觉自己很平凡，平凡的像一颗远星的微光，一叶小草，一滴晨露，为此，我们惆怅，我们感叹。", selected_k=3)
+
+    examples_str = ""
+    for id,example in enumerate(res):
+        examples_str += f'示例 {id + 1}:\n输入："{example[0]}"\n输出："{example[1]}"\n'

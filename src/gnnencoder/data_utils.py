@@ -11,6 +11,7 @@ import argparse
 from tqdm import tqdm
 
 from linguistics import SentenceAnalyzer
+from linguistics_en import SentenceAnalyzer_en
 from structure import compute_structural_similarity
 import warnings
 
@@ -52,7 +53,14 @@ class GNNDataset(Dataset):
         #     self.model = nn.DataParallel(self.model)
         self.model.eval()
         # 边编码器
-        self.analyzer = SentenceAnalyzer(top_k=self.lig_top_k)
+        if self.dataset_name == 'CSR' or self.dataset_name == 'CMRE':
+            # 使用中文
+            self.analyzer = SentenceAnalyzer(top_k=self.lig_top_k)
+        elif self.dataset_name == 'LCC':
+            # 使用英文
+            self.analyzer = SentenceAnalyzer_en(top_k=self.lig_top_k)
+        else:
+            raise ValueError('Invalid dataset name')
 
     def __len__(self):
         return len(self.data)
@@ -63,7 +71,7 @@ class GNNDataset(Dataset):
         if self.dataset_name == 'CMRE':
             span_types = parse_output(self.data[idx]['spans_type'])
             return inputs, outputs, span_types
-        elif self.dataset_name == 'CSR':
+        elif self.dataset_name == 'CSR' or self.dataset_name == 'LCC':
             return inputs, outputs
         else:
             raise ValueError('Invalid dataset name')
@@ -88,8 +96,10 @@ class GNNDataset(Dataset):
         """
         # 语言学相似度
         lig_features = self.analyzer.linguistic_feature(inputs, outputs)
+
         # 结构相似
         struct_features = compute_structural_similarity(inputs, outputs, span_types, dataset_name=self.dataset_name, top_k=self.struct_top_k)
+
 
         # 拼接合并 [b, b] * 2 -> [b, b, 2]  确保是三维的
         edge_features = np.stack((lig_features, struct_features), axis=-1)
@@ -105,7 +115,7 @@ class GNNDataset(Dataset):
             inputs, outputs, span_types = zip(*batch)
             # 获取边 对比损失 矩阵
             edge_features = self.batch_generate_edge_features(inputs, outputs, span_types)
-        elif self.dataset_name == 'CSR':
+        elif self.dataset_name == 'CSR' or self.dataset_name == 'LCC':
             inputs, outputs = zip(*batch)
             # 获取边 对比损失 矩阵
             edge_features = self.batch_generate_edge_features(inputs, outputs)
@@ -116,3 +126,26 @@ class GNNDataset(Dataset):
 
         return node_features, edge_features
 
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Train GNN model')
+    parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
+    parser.add_argument('--epoch_num', type=int, default=10, help='Number of epochs')
+    parser.add_argument('--max_len', type=int, default=128, help='Maximum sequence length')
+    # note 由于 shuffle，这里的 batch_size 必须足够大，才能确保表征模型学到泛化性
+    parser.add_argument('--batch_size', type=int, default=128, help='Batch size')
+    parser.add_argument('--save_path', type=str, default='../../checkpoints/gnn', help='Path to save the model')
+    parser.add_argument('--lig_top_k', type=float, default=0.2, help='Top k percent of linguistic similarity')
+    parser.add_argument('--struct_top_k', type=float, default=0.2, help='Top k percent of structural similarity')
+    parser.add_argument('--data_path', type=str, default='/home/xyou/workspace/simile_component_extraction/data/CSU/train.json', help='The location of the dataset')
+    args = parser.parse_args()
+
+    train_dataset = GNNDataset(args)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=False, collate_fn=train_dataset.collate_fn)
+
+    for batch in tqdm(train_loader):
+        node_features, edge_features = batch
+        # [B,B,2]
+        print(node_features.shape)
+        print(edge_features.shape)
+        # break

@@ -52,7 +52,7 @@ CUDA_VISIBLE_DEVICES=0 bash run_ficl.sh
 ```
 ```shell
 # Important parameter description
---dataset_name # The dataset name to be processed. (CSR, CMRE)
+--dataset_name # The dataset name to be processed. (CSR, CMRE, LCC)
 --dataset_type # The type of dataset to be processed. (train)
 --model_name_or_path # The location of the LLM.
 ```
