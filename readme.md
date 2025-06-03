@@ -24,7 +24,7 @@ Metaphors, as a common linguistic expression, help people intuitively understand
 <a id="anchor-code-structure"></a>
 ## 📂 Code Structure
 ```angular2html
-├── 📁 data——The reconstruct data from CSR and CMRE.
+├── 📁 data——The reconstruct data from CSR, CMRE and LCC.
 └── 📁 src——the code of method
     ├── 📁 gnnencoder——GAT encoder
     └── 📁 Icl——In-context learning
@@ -63,7 +63,7 @@ CUDA_VISIBLE_DEVICES=0 bash run_gnn.sh
 ```
 ```shell
 # Important parameter description
---dataset_name # The dataset name to be processed. (CSR, CMRE)
+--dataset_name # The dataset name to be processed. (CSR, CMRE, LCC)
 --bert_model_path # The location of the bert-base-chinese.
 ```
 
@@ -81,7 +81,7 @@ CUDA_VISIBLE_DEVICES=0 bash run.sh
 --sbert_path # The location of the sentence-transformers. (all-MiniLM-L6-v2)
 --gnn_path # The location of the GAT encoder. (The model saved in step2)
 --dataset_dir # The location of the dataset.
---dataset_name # The dataset name to be processed. (CSR, CMRE)
+--dataset_name # The dataset name to be processed. (CSR, CMRE, LCC)
 --model_name_or_path # The location of the LLM.
 ```
 
@@ -116,4 +116,22 @@ CUDA_VISIBLE_DEVICES=0 bash run.sh
     pages = "9085--9095"
 }
 ```
+>The LCC dataset is sourced from Mohler et al.
+```bibtex
+@inproceedings{mohler-etal-2016-introducing,
+    title = "Introducing the {LCC} Metaphor Datasets",
+    author = "Mohler, Michael  and
+      Brunson, Mary  and
+      Rink, Bryan  and
+      Tomlinson, Marc",
+    booktitle = "Proceedings of the Tenth International Conference on Language Resources and Evaluation ({LREC}'16)",
+    month = may,
+    year = "2016",
+    address = "Portoro{\v{z}}, Slovenia",
+    publisher = "European Language Resources Association (ELRA)",
+    url = "https://aclanthology.org/L16-1668/",
+    pages = "4221--4227"
+}
+```
+
 
