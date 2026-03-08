@@ -2,8 +2,6 @@
 
 ---
 
-**Authors:** Anonymous Authors
-
 
 ## 📋 Table of Contents
 - [Introduction](#anchor-introduction)
